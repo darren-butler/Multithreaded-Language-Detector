@@ -2,53 +2,63 @@ package ie.gmit.sw;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Runner {
-	public static void main(String[] args) {
-		
-		Database database = new Database();
 
-		BlockingQueue<Task> queue = new ArrayBlockingQueue<>(100);
-		ExecutorService executor = Executors.newFixedThreadPool(5);
+	public static void main(String[] args) {
+		Database database = new Database();
+		
+		BlockingQueue<DataTask> dataQ = new ArrayBlockingQueue<>(100);
+		ExecutorService dataExecutor = Executors.newFixedThreadPool(5);
+		
 		//wili-2018-Small-11750-Edited
 		String str = "wili-2018-Small-11750-Edited.txt";
-		Parser parser = new Parser(queue, str, 1); //TODO remove kmersize?
+		DataProcessor parser = new DataProcessor(str, dataQ); 
 		
-		executor.execute(parser);
+		dataExecutor.execute(parser);
 		
-		executor.execute(new Worker(database.getDb(), queue)); //TODO config thread pool and blockingqueue sizes
-		executor.execute(new Worker(database.getDb(), queue));
-		executor.execute(new Worker(database.getDb(), queue));
-		executor.execute(new Worker(database.getDb(), queue));
+		dataExecutor.execute(new DataWorker(database.getDb(), dataQ)); //TODO config thread pool and blockingqueue sizes
+		dataExecutor.execute(new DataWorker(database.getDb(), dataQ));
+		dataExecutor.execute(new DataWorker(database.getDb(), dataQ));
+		dataExecutor.execute(new DataWorker(database.getDb(), dataQ));
 		
-		executor.shutdown();
+		dataExecutor.shutdown();
 		
 		do {
-			
-		}while(!executor.isTerminated());
-		
+			// run until threadpool is done //TODO add better wait implementation
+		}while(!dataExecutor.isTerminated());
 		
 		// Format DB
 		database.resize(300);
 		//System.out.println(database);
-		String queryDataSource = "query.txt";
-		Query query = new Query(queryDataSource);
 		
-		Thread t = new Thread(query);
-		t.start();
-		try {
-			t.join();
+		
+		BlockingQueue<QueryTask> queryQ = new ArrayBlockingQueue<>(100);
+		ExecutorService queryExecutor = Executors.newFixedThreadPool(4);
+		
+		
+		str = "query.txt"; // have 3 or 4 test files with different languages to auto check for faster debugging verification it works
+		QueryProcessor query = new QueryProcessor(str, queryQ);
+		QueryWorker qw = new QueryWorker(queryQ);
+		
+		queryExecutor.execute(query);
+		queryExecutor.execute(new QueryWorker(queryQ));
+		queryExecutor.execute(new QueryWorker(queryQ));
+		queryExecutor.execute(new QueryWorker(queryQ));
 
-			System.out.println(database.getLanguage(query.getQueryMap()));
-			
-			
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		
-	} 
-	
-	
+		queryExecutor.shutdown();
+		do {
+			// run until threadpool is done //TODO more graceful implementation
+		}while(!queryExecutor.isTerminated());
+		
+		query.resize(300);
+		
+		
+		System.out.println(database.getLanguage(query.getMap()));
+
+	}
 }

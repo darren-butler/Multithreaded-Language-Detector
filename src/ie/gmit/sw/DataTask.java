@@ -1,10 +1,10 @@
 package ie.gmit.sw;
 
-public class Task{
+public class DataTask{
 	private Language language;
 	private String text;
 	
-	public Task(Language language, String text) {
+	public DataTask(Language language, String text) {
 		this.language = language;
 		this.text = text;
 	}

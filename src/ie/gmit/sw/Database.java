@@ -10,11 +10,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Database {
-	private ConcurrentSkipListMap<Language, ConcurrentSkipListMap<Integer, Kmer>> db = new ConcurrentSkipListMap<>();
 	
-	public Database() {
-		
-	}
+	private ConcurrentSkipListMap<Language, ConcurrentSkipListMap<Integer, Kmer>> db = new ConcurrentSkipListMap<>();
 	
 	public ConcurrentSkipListMap<Language, ConcurrentSkipListMap<Integer, Kmer>> getDb() {
 		return db;
@@ -72,6 +69,7 @@ public class Database {
 		for(Language lang: langs) {
 			oopm.add(new OutOfPlaceMetric(lang, getOutOfPlaceDistance(query, db.get(lang))));
 		}
+
 		
 		return oopm.first().getLanguage();
 	}
@@ -123,5 +121,5 @@ public class Database {
 		
 		
 	}
-}
 
+}
