@@ -1,50 +1,46 @@
 package ie.gmit.sw;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class Database implements Runnable{
-
+public class Database {
 	private ConcurrentSkipListMap<Language, ConcurrentSkipListMap<Integer, Kmer>> db = new ConcurrentSkipListMap<>();
 	
-	private volatile boolean keepRunning = true;
-	private BlockingQueue<KmerTask> queue = new ArrayBlockingQueue<>(1000);
-	private ExecutorService executor = Executors.newFixedThreadPool(3);
-	
-	public Database(BlockingQueue<KmerTask> queue) {
-		this.queue = queue;
-	}
-
-	public void process() throws InterruptedException {
+	public Database() {
 		
-		while(keepRunning) {
-			KmerTask task = queue.take();
-			
-			if(task instanceof Poison) {
-				keepRunning = false;
-			}
-			else {
-				executor.execute(new Worker(db, task));
-			}
-		}
-		
-		executor.shutdown();
-		//System.out.println("DEBUG - ExecutorSerivice.isShutdown() = " + executor.isShutdown());
 	}
 	
-	@Override
-	public void run() {
-		try {
-			process();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+	public ConcurrentSkipListMap<Language, ConcurrentSkipListMap<Integer, Kmer>> getDb() {
+		return db;
+	}
+	
+	public void resize(int max) { //TODO take advantage of ConcurrentSkipListMap natual ordering
+		Set<Language> keys = db.keySet(); // db.descendingKeySet()?
+		for(Language lang : keys) {
+			ConcurrentSkipListMap<Integer, Kmer> top = getTop(max, lang);
+			db.put(lang, top);
 		}
+	}
+	
+	public ConcurrentSkipListMap<Integer, Kmer> getTop(int max, Language lang) {
+		ConcurrentSkipListMap<Integer, Kmer> temp = new ConcurrentSkipListMap<>(); 
+		List<Kmer> kmers = new ArrayList<>(db.get(lang).values());
+		Collections.sort(kmers);
+		
+		int rank = 1;
+		for(Kmer k : kmers) {
+			k.setRank(rank);
+			temp.put(k.getHash(), k);
+			if(rank == max) break;
+			rank++;
+		}
+		return temp;
 	}
 	
 	@Override
@@ -68,5 +64,64 @@ public class Database implements Runnable{
 		sb.append(kmerCount + " total k-mers in " + langCount + " languages");
 		return sb.toString();
 	}
+	
+	public Language getLanguage(Map<Integer, Kmer> query) {
+		TreeSet<OutOfPlaceMetric> oopm = new TreeSet<>();
+		
+		Set<Language> langs = db.keySet(); // ? already ordereD?
+		for(Language lang: langs) {
+			oopm.add(new OutOfPlaceMetric(lang, getOutOfPlaceDistance(query, db.get(lang))));
+		}
+		
+		return oopm.first().getLanguage();
+	}
+	
+	private int getOutOfPlaceDistance(Map<Integer, Kmer> query, Map<Integer, Kmer> subject) {
+		int distance = 0;
+		
+		Set<Kmer> kmers = new TreeSet<>(query.values());
+		for(Kmer q: kmers) {
+			Kmer s = subject.get(q.getHash());
+			if(s == null) {
+				distance += subject.size() + 1;
+			}
+			else {
+				distance += s.getRank() - q.getRank();
+			}
+		}
+		
+		return distance;
+	}
+	
+	private class OutOfPlaceMetric implements Comparable<OutOfPlaceMetric>{
+		private Language lang;
+		private int distance;
+		
+		public OutOfPlaceMetric(Language lang, int distance) {
+			super();
+			this.lang = lang;
+			this.distance = distance;
+		}
 
+		public Language getLanguage() {
+			return lang;
+		}
+
+		public int getAbsoluteDistance() {
+			return Math.abs(distance);
+		}
+
+		@Override
+		public int compareTo(OutOfPlaceMetric o) {
+			return Integer.compare(this.getAbsoluteDistance(), o.getAbsoluteDistance());
+		}
+
+		@Override
+		public String toString() {
+			return "[lang=" + lang + ", distance=" + getAbsoluteDistance() + "]";
+		}
+		
+		
+	}
 }
+

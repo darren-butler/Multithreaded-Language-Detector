@@ -1,22 +1,22 @@
 package ie.gmit.sw;
 
 public class Kmer implements Comparable<Kmer> {
-
-	private int kmerHash;
+	private int hash;
 	private int frequency;
 	private int rank;
-	
-	public Kmer(int kmerHash, int frequency) {
-		this.kmerHash = kmerHash;
+
+	public Kmer(int kmer, int frequency) {
+		super();
+		this.hash = kmer;
 		this.frequency = frequency;
 	}
-	
-	public int getKmerHash() {
-		return kmerHash;
+
+	public int getHash() {
+		return hash;
 	}
 
-	public void setKmerHash(int kmerHash) {
-		this.kmerHash = kmerHash;
+	public void setHash(int hash) {
+		this.hash = hash;
 	}
 
 	public int getFrequency() {
@@ -37,12 +37,11 @@ public class Kmer implements Comparable<Kmer> {
 
 	@Override
 	public int compareTo(Kmer next) {
-		return -Integer.compare(frequency, next.getFrequency());
+		return - Integer.compare(frequency, next.getFrequency());
 	}
-
+	
 	@Override
 	public String toString() {
-		return "[" + kmerHash + "/" + frequency + "/" + rank + "]";
+		return "[" + hash + "/" + frequency + "/" + rank + "]";
 	}
-
 }

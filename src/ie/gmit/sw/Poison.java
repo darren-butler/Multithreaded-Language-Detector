@@ -1,9 +1,9 @@
 package ie.gmit.sw;
 
-public class Poison extends KmerTask{
+public class Poison extends Task{
 
-	public Poison(Language language, String kmer) {
-		super(language, kmer);
+	public Poison(Language language, String text) {
+		super(language, text);
 		// TODO Auto-generated constructor stub
 	}
 
