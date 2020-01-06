@@ -37,9 +37,9 @@ public class Kmer implements Comparable<Kmer> {
 
 	@Override
 	public int compareTo(Kmer next) {
-		return - Integer.compare(frequency, next.getFrequency());
+		return -Integer.compare(frequency, next.getFrequency());
 	}
-	
+
 	@Override
 	public String toString() {
 		return "[" + hash + "/" + frequency + "/" + rank + "]";

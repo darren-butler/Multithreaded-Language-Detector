@@ -2,7 +2,6 @@ package ie.gmit.sw;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
 
@@ -10,7 +9,6 @@ public class Dataset implements Parsable, Runnable {
 
 	private String dataSource;
 	private BlockingQueue<DataTask> queue;
-	private Database database = null;
 
 	public Dataset(String dataSource, BlockingQueue<DataTask> queue) {
 		super();
@@ -41,9 +39,7 @@ public class Dataset implements Parsable, Runnable {
 			}
 
 			for (int i = 0; i < 100; i++) {
-				queue.put(new DataPoison(null, null)); // MAYBE?! put 100 instances of POions to ensure workers are
-														// dead?
-				// add loads of poison so all consumer threads die
+				queue.put(new DataPoison(null, null));
 			}
 
 			br.close();
@@ -52,11 +48,10 @@ public class Dataset implements Parsable, Runnable {
 				try {
 					queue.put(new DataPoison(null, null));
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					//e1.printStackTrace();
+					// e1.printStackTrace();
 				}
 			}
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 	}

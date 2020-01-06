@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -83,7 +81,7 @@ public class Query implements Parsable, Runnable {
 
 			br.close();
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			System.out.println("\n\tERROR - Could not open file");
 			for (int i = 0; i < 100; i++) {
 				try {
