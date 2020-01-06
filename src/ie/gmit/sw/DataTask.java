@@ -1,6 +1,6 @@
 package ie.gmit.sw;
 
-public class DataTask{
+public class DataTask extends Task{
 	private Language language;
 	private String text;
 	

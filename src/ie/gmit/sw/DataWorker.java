@@ -29,11 +29,6 @@ public class DataWorker implements Runnable {
 						add(kmer, task.getLanguage());
 					}
 				}
-
-//				for (int i = 0; i <= task.getText().length() - 3; i++) { // TODO remove hardcode n-mer size
-//					String kmer = task.getText().substring(i, i + 3);
-//					add(kmer, task.getLanguage());
-//				}
 			}
 		}
 	}

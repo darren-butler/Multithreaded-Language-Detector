@@ -6,12 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
 
-public class DataProcessor extends ConcurrentFileProcessor implements Parsable{
+public class Dataset implements Parsable, Runnable {
 
 	private String dataSource;
-	private BlockingQueue<DataTask> queue; 
+	private BlockingQueue<DataTask> queue;
+	private Database database = null;
 
-	public DataProcessor(String dataSource, BlockingQueue<DataTask> queue) {
+	public Dataset(String dataSource, BlockingQueue<DataTask> queue) {
 		super();
 		this.dataSource = dataSource;
 		this.queue = queue;
@@ -19,7 +20,7 @@ public class DataProcessor extends ConcurrentFileProcessor implements Parsable{
 
 	@Override
 	public void run() {
-		parse();		
+		parse();
 	}
 
 	@Override
@@ -27,9 +28,9 @@ public class DataProcessor extends ConcurrentFileProcessor implements Parsable{
 		BufferedReader br;
 		try {
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(dataSource)));
-			
-			String line = null;		
-			
+
+			String line = null;
+
 			while ((line = br.readLine()) != null) {
 				String[] record = line.trim().split("@");
 				if (record.length != 2)
@@ -38,16 +39,24 @@ public class DataProcessor extends ConcurrentFileProcessor implements Parsable{
 				String text = record[0];
 				queue.put(new DataTask(language, text));
 			}
-			
-			for(int i = 0; i < 100; i++) {
-				queue.put(new DataPoison(null, null)); //MAYBE?! put 100 instances of POions to ensure workers are dead?
+
+			for (int i = 0; i < 100; i++) {
+				queue.put(new DataPoison(null, null)); // MAYBE?! put 100 instances of POions to ensure workers are
+														// dead?
 				// add loads of poison so all consumer threads die
 			}
-			
-			br.close();	
+
+			br.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			for (int i = 0; i < 100; i++) {
+				try {
+					queue.put(new DataPoison(null, null));
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					//e1.printStackTrace();
+				}
+			}
+			//e.printStackTrace();
 		}
 
 	}

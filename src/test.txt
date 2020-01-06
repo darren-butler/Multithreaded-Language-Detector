@@ -1,4 +1,0 @@
-string@English
-string@Irish
-string@French
-string@German

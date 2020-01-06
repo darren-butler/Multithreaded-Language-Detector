@@ -2,7 +2,7 @@ package ie.gmit.sw;
 
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public class QueryTask {
+public class QueryTask extends Task{
 	private String kmer;
 	private ConcurrentSkipListMap<Integer, Kmer> map;
 	
