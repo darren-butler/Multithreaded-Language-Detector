@@ -2,6 +2,11 @@ package ie.gmit.sw;
 
 import java.util.Scanner;
 
+/**
+ * Menu class responsible for handling most of the i/o for the application
+ * @author Darren
+ *
+ */
 public class Menu {
 	private int option = 0;
 	private Scanner console = new Scanner(System.in);

@@ -1,5 +1,10 @@
 package ie.gmit.sw;
 
+/**
+ * Custom type that implements Comparable to allow k-mers to be sorted by their frequency and assigned a ranking
+ * @author Darren
+ *
+ */
 public class Kmer implements Comparable<Kmer> {
 	private int hash;
 	private int frequency;

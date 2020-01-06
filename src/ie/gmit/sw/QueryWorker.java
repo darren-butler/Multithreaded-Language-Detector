@@ -2,6 +2,12 @@ package ie.gmit.sw;
 
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Multiple instances of this class will concurrently <code>take()</code> <code>QueryTask</code> objects from the <code>BlockingQueue</code> until poisoned.<br>
+ * 
+ * @author Darren
+ *
+ */
 public class QueryWorker implements Runnable {
 
 	private BlockingQueue<QueryTask> queue;
@@ -11,6 +17,10 @@ public class QueryWorker implements Runnable {
 		this.queue = queue;
 	}
 
+	/**
+	 * Takes <code>QueryTask</code> objects from the queue, processes them to produce a <code>Kmer</code> which is then added to the query map.
+	 * @throws InterruptedException
+	 */
 	public void process() throws InterruptedException {
 		while (keepGoing) {
 			QueryTask task = queue.take();

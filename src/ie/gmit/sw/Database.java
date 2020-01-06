@@ -9,6 +9,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+/**
+ * The class implements a <code>ConcurrentSkiptListMap</code> to store a map of k-mers for each language read in from a dataset txt file
+ * @author Darren
+ *
+ */
 public class Database {
 
 	private ConcurrentSkipListMap<Language, ConcurrentSkipListMap<Integer, Kmer>> db = new ConcurrentSkipListMap<>();
@@ -17,7 +22,11 @@ public class Database {
 		return db;
 	}
 
-	public void resize(int max) { // TODO take advantage of ConcurrentSkipListMap natual ordering
+	/**
+	 * Resizes the map to a specified size
+	 * @param max Number of map entries to keep
+	 */
+	public void resize(int max) { // TODO take advantage of ConcurrentSkipListMap natural ordering?
 		Set<Language> keys = db.keySet(); // db.descendingKeySet()?
 		for (Language lang : keys) {
 			ConcurrentSkipListMap<Integer, Kmer> top = getTop(max, lang);
@@ -25,6 +34,12 @@ public class Database {
 		}
 	}
 
+	/**
+	 * Sorts a map of k-mers by frequency
+	 * @param max number of top k-mers to keep
+	 * @param lang language of the map to be sorted
+	 * @return A sorted and resized map
+	 */
 	public ConcurrentSkipListMap<Integer, Kmer> getTop(int max, Language lang) {
 		ConcurrentSkipListMap<Integer, Kmer> temp = new ConcurrentSkipListMap<>();
 		List<Kmer> kmers = new ArrayList<>(db.get(lang).values());
@@ -41,6 +56,11 @@ public class Database {
 		return temp;
 	}
 
+	/**
+	 * Takes a query map of k-mers and returns the closest matching k-mer map in the database
+	 * @param query
+	 * @return
+	 */
 	public Language getLanguage(Map<Integer, Kmer> query) {
 		TreeSet<OutOfPlaceMetric> oopm = new TreeSet<>();
 

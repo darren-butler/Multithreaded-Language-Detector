@@ -5,6 +5,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * main()
+ * @author Darren
+ *
+ */
 public class Runner {
 
 	public static void main(String[] args) {
@@ -26,7 +31,7 @@ public class Runner {
 			case 1:
 				String str = menu.inputFile();
 				BlockingQueue<DataTask> dataQ = new ArrayBlockingQueue<>(100);
-				ExecutorService dataExecutor = Executors.newFixedThreadPool(5);
+				ExecutorService dataExecutor = Executors.newFixedThreadPool(5); // 1 producer, 4 consumers
 
 				dataset = new Dataset(str, dataQ);
 
@@ -41,7 +46,7 @@ public class Runner {
 				dataExecutor.shutdown();
 
 				do {
-					// wait until threadpool is done //TODO find more gracefull implementation?
+					// wait until all dataExecutor threads are done //TODO more graceful implementation?
 				} while (!dataExecutor.isTerminated());
 				database.resize(300);
 
@@ -73,12 +78,12 @@ public class Runner {
 				queryExecutor.shutdown();
 
 				do {
-					// run until threadpool is done //TODO more graceful implementation
+					// run until all queryExecutor threads are done //TODO more graceful implementation?
 				} while (!queryExecutor.isTerminated());
 				query.resize(300);
 
 				if (!query.getMap().isEmpty()) {
-					System.out.println("\n\tLanguage detected: " + database.getLanguage(query.getMap()));
+					System.out.println("\n\tLanguage detected: " + database.getLanguage(query.getMap())); // output the detected language
 				}
 
 				break;
